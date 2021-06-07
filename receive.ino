@@ -30,8 +30,11 @@ void loop()
   if (radio.available())
   {
     char text[32] = {0};
-    radio.read(&text, sizeof(text));
+    radio.read(&text, sizeof(text)); //could potentially be an issue where multiple transmissions are picked up
     Serial.println(text);
+    delay(250);
   }
   //add some fancy ways to read and display code, or package it up beforehand
+  //https://www.hacktronics.com/Tutorials/arduino-character-lcd-tutorial.html
+  
 }
