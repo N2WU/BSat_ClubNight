@@ -3,6 +3,21 @@
 //https://www.adafruit.com/product/1893
 //https://www.e-tinkers.com/2020/01/do-you-know-arduino-sprintf-and-floating-point/
 
+/*
+
+MISO connects to pin 12 of the Uno
+MOSI connects to pin 11 of the Uno
+SCK connects to pin 13 of the Uno
+CE connects to pin 9 of the Uno
+CSN connects to pin 10 of the Uno
+GND and VCC of the NRF24L01 are connected to GND and 3.3V of the Nano
+SDA - A4
+SCL - A5
+TMP36 - A0, VCC, GND
+
+
+*/
+
 //Include Libraries
 #include <SPI.h>
 #include <nRF24L01.h>
