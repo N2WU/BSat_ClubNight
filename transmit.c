@@ -1,5 +1,6 @@
 //From https://lastminuteengineers.com/nrf24l01-arduino-wireless-communication/
 //https://learn.sparkfun.com/tutorials/mpl3115a2-pressure-sensor-hookup-guide?_ga=2.23559038.573030183.1623087976-1586840990.1623087976
+//https://www.adafruit.com/product/1893
 //https://www.e-tinkers.com/2020/01/do-you-know-arduino-sprintf-and-floating-point/
 
 //Include Libraries
@@ -7,7 +8,14 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 #include <Wire.h>
-#include <SparkFunMPL3115A2.h>
+#include <Wire.h>
+#include <Adafruit_MPL3115A2.h>
+
+// Power by connecting Vin to 3-5V, GND to GND
+// Uses I2C - connect SCL to the SCL pin, SDA to SDA pin
+// See the Wire tutorial for pinouts for each Arduino
+// http://arduino.cc/en/reference/wire
+Adafruit_MPL3115A2 baro = Adafruit_MPL3115A2();
 
 //create an RF24 object
 RF24 radio(9, 8);  // CE, CSN
@@ -15,17 +23,6 @@ RF24 radio(9, 8);  // CE, CSN
 //TMP36 Sensor: connected to 5V, A0, GND
 //Pressure sensor: MPL3115A2
 int sensorPin = 0;
-MPL3115A2 myPressure;
-
-char pastring[10];
-char tmpstring[10];
-
-float pressure;
-float temperature;
-
-int ipress;
-int itemp;
-
 
 //address through which two modules communicate.
 const byte address[6] = "00001";
@@ -37,21 +34,11 @@ void setup()
   //set the address
   radio.openWritingPipe(address);
   
-  //Set module as transmitter
-  radio.stopListening();
-  Wire.begin(); 
-  myPressure.begin(); // Get sensor online
 
-  myPressure.setModeBarometer(); // Measure pressure in Pascals from 20 to 110 kPa
-  
-  myPressure.setOversampleRate(7); // Set Oversample to the recommended 128
-  myPressure.enableEventFlags(); // Enable all three pressure and temp event flags 
 }
 void loop()
 {
- pressure = myPressure.readPressure();
- ipress = pressure;
- sprintf(pareading, "Pressure: %d\n", ipress);
+
  int reading = analogRead(sensorPin);  
  
  // converting that reading to voltage, for 3.3v arduino use 3.3
@@ -71,11 +58,32 @@ void loop()
   //Send message to receiver, change to read data
   //const char temptext[] = "T:";
   //radio.write(&temptext, sizeof(temptext)); 
-  radio.write(&tmpreading, sizeof(tmpreading)); //send out temperature
+  radio.write(&tmpreading, sizeof(tmpreading)); //send out precise temperature
+  delay(1000);
   
-  delay(5000);
-  
+  float pascals = baro.getPressure();
+  pascalsmm = pascals/3377;
+  char pachar[10];
+  dtostrf(pascalsmm,4,2,pachar);
+  sprintf(pareading, "Pressure (mmHg): %s\n", pachar); // <-
   radio.write(&pareading, sizeof(pareading));
+  delay(1000);
+
+  float altm = baro.getAltitude();
+  char altmchar[10];
+  dtostrf(altm,4,2,altmchar);
+  sprintf(altmreading, "Altitude (m): %s\n", altmchar);
+  radio.write(&altmreading, sizeof(altmreading));
+
+  /*
+  float tempC = baro.getTemperature();
+  char tempchar[10];
+  dtostrf(tempC,4,2,tempchar);
+  sprintf(tempreading, "Temperature (C): %s\n", tempchar);
+  radio.write(&tempreading, sizeof(tempreading));
+  */
+
+  delay(1000);
   
   delay(10000);
 }
