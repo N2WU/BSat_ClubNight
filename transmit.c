@@ -13,6 +13,7 @@
 RF24 radio(9, 8);  // CE, CSN
 //create additional objects for weather sensors
 //TMP36 Sensor: connected to 5V, A0, GND
+//Pressure sensor: MPL3115A2
 int sensorPin = 0;
 MPL3115A2 myPressure;
 
@@ -78,3 +79,27 @@ void loop()
   
   delay(10000);
 }
+
+/*
+using aadafruit libraries:
+https://github.com/adafruit/Adafruit_MPL3115A2_Library/blob/master/examples/testmpl3115a2/testmpl3115a2.ino
+float pascals = baro.getPressure();
+pascalsmm = pascals/3377;
+char pachar[10];
+dtostrf(pascalsmm,4,2,pachar);
+sprintf(pareading, "Pressure (mmHg): %s\n", pachar); // <-
+
+
+  float altm = baro.getAltitude();
+  char altmchar[10];
+  dtostrf(altm,4,2,altmchar);
+  sprintf(altmreading, "Altitude (m): %s\n", altmchar);
+
+  float tempC = baro.getTemperature();
+  char tempchar[10];
+  dtostrf(tempC,4,2,tempchar);
+  sprintf(tempreading, "Temperature (C): %s\n", tempchar);
+
+  delay(250);
+
+*/
