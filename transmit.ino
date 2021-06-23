@@ -23,7 +23,6 @@ TMP36 - A0, VCC, GND
 #include <nRF24L01.h>
 #include <RF24.h>
 #include <Wire.h>
-#include <Wire.h>
 #include <Adafruit_MPL3115A2.h>
 
 // Power by connecting Vin to 3-5V, GND to GND
@@ -48,11 +47,19 @@ void setup()
   
   //set the address
   radio.openWritingPipe(address);
+  radio.stopListening();
+  Serial.begin(9600);
+  
   
 
 }
 void loop()
 {
+
+if (! baro.begin()) {
+    Serial.println("Couldnt find sensor");
+    return;
+  }
 
  int reading = analogRead(sensorPin);  
  
@@ -66,8 +73,11 @@ void loop()
  //dtostrf(temperatureC, 6, 2, tempchar); // Leave room for too large numbers!
   
   char tmpchar[10];
+  char tmpreading[32];
   dtostrf(temperatureC,4,2,tmpchar);
+  
   sprintf(tmpreading, "Temperature: %s\n", tmpchar);
+  Serial.println(tmpreading);
   //Serial.print(buffer);
   
   //Send message to receiver, change to read data
@@ -77,25 +87,29 @@ void loop()
   delay(1000);
   
   float pascals = baro.getPressure();
-  pascalsmm = pascals/3377;
+  float pascalsmm = pascals/3377;
   char pachar[10];
-  dtostrf(pascalsmm,4,2,pachar);
+  char pareading[32];
+  dtostrf(pascalsmm,4,2,pachar); //converts float to String
   sprintf(pareading, "Pressure (mmHg): %s\n", pachar); // <-
+  Serial.println(pareading);
   radio.write(&pareading, sizeof(pareading));
   delay(1000);
 
   float altm = baro.getAltitude();
   char altmchar[10];
   dtostrf(altm,4,2,altmchar);
+  char altmreading[32];
   sprintf(altmreading, "Altitude (m): %s\n", altmchar);
+  Serial.println(altmreading);
   radio.write(&altmreading, sizeof(altmreading));
 
   /*
-  float tempC = baro.getTemperature();
-  char tempchar[10];
-  dtostrf(tempC,4,2,tempchar);
-  sprintf(tempreading, "Temperature (C): %s\n", tempchar);
-  radio.write(&tempreading, sizeof(tempreading));
+  float f = baro.GetPressure();
+  char floatString[10];
+  dtostrf(f,4,2,floatString);
+  sprintf(buffer, "myFloat in string is = %s\n", floatString);
+  Serial.print(buffer);
   */
 
   delay(1000);
